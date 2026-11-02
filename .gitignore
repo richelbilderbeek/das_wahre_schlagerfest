@@ -34,3 +34,4 @@ object_script*
 release/
 debug/
 ui_*
+build/
