@@ -38,3 +38,6 @@ build/
 
 # The WebAssembly version, built by the Build workflow
 docs/game/
+
+# The website, built by Zensical
+site/

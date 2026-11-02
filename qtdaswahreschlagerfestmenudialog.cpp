@@ -31,8 +31,6 @@ ribi::dws::QtMenuDialog::QtMenuDialog(QWidget *parent)
   m_timer_joystick->setInterval(100);
   m_timer_joystick->start();
   #endif // USE_SFML_FOR_JOYSTICK_SUPPORT
-
-  ui->button_start->setFocus();
 }
 
 ribi::dws::QtMenuDialog::~QtMenuDialog()
@@ -60,7 +58,6 @@ void ribi::dws::QtMenuDialog::on_button_start_clicked()
   QObject::connect(d,&QtDwsWidget::closed,this,[this]()
     {
       ShowMenu();
-      ui->button_start->setFocus();
     }
   );
   hide();
@@ -81,6 +78,7 @@ void ribi::dws::QtMenuDialog::ShowMenu()
   #else
   show();
   #endif // Q_OS_WASM
+  ui->button_start->setFocus();
 }
 
 void ribi::dws::QtMenuDialog::on_button_about_clicked()

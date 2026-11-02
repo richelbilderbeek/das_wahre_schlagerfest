@@ -68,7 +68,8 @@ void ribi::dws::QtDwsWidget::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Escape: Press(Key::quit); return;
     default: break;
   }
-  //When the game is over, any key returns to the menu
+  //When the game is over, any other key returns to the menu,
+  //so that a player still holding an arrow key sees the game is over
   if (m_game.IsGameOver()) close();
 }
 
@@ -150,7 +151,7 @@ void ribi::dws::QtDwsWidget::paintEvent(QPaintEvent *)
 
 void ribi::dws::QtDwsWidget::Press(const Key key)
 {
-  if (key == Key::quit || m_game.IsGameOver())
+  if (key == Key::quit)
   {
     close();
     return;
