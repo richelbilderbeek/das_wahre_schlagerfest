@@ -1,54 +1,49 @@
-
-
 #include "qtdaswahreschlagerfestwidget.h"
 
-#include <QApplication>
+#include <algorithm>
+#include <cassert>
+
+#include <QCloseEvent>
 #include <QKeyEvent>
 #include <QPainter>
-#include <QPixmap>
 #include <QTimer>
 
 #ifdef USE_SFML_FOR_JOYSTICK_SUPPORT
 #include <SFML/Window/Joystick.hpp>
 #endif // USE_SFML_FOR_JOYSTICK_SUPPORT
 
-#include "daswahreschlagerfestwidget.h"
-#include "qtgraphics.h"
-#include "testtimer.h"
-#include "trace.h"
-
-
-ribi::dws::QtDwsWidget::QtDwsWidget(QWidget *parent) noexcept
+ribi::dws::QtDwsWidget::QtDwsWidget(QWidget *parent)
   : QWidget(parent),
     m_beer(":/images/DasWahreSchlagerfestBeer.png"),
     m_bratwurst(":/images/DasWahreSchlagerfestBratwurst.png"),
     m_empty(":/images/DasWahreSchlagerfestSmiley.png"),
-    m_image{QtGraphics().CreateImage(1000,600,0)},
-    m_keys{},
+    m_game(this),
     m_timer_joystick{new QTimer(this)}
 {
   assert(m_beer.width() == 102);
   assert(m_bratwurst.width() == 102);
   assert(m_empty.width() == 102);
 
+  setFocusPolicy(Qt::StrongFocus);
+  setWindowTitle("Das Wahre Schlagerfest");
+
+  #ifdef USE_SFML_FOR_JOYSTICK_SUPPORT
   //Timer for checking the joystick input
-  {
-    QObject::connect(m_timer_joystick,SIGNAL(timeout()),this,SLOT(OnJoystickCheck()));
-    m_timer_joystick->setInterval(100);
-    m_timer_joystick->start();
-  }
+  QObject::connect(m_timer_joystick,SIGNAL(timeout()),this,SLOT(OnJoystickCheck()));
+  m_timer_joystick->setInterval(100);
+  m_timer_joystick->start();
+  #endif // USE_SFML_FOR_JOYSTICK_SUPPORT
 }
 
-ribi::dws::QtDwsWidget::~QtDwsWidget() noexcept
+void ribi::dws::QtDwsWidget::closeEvent(QCloseEvent * e)
 {
-  m_timer_joystick->stop();
+  emit closed();
+  QWidget::closeEvent(e);
 }
 
 void ribi::dws::QtDwsWidget::DoDisplay(const Widget& /* widget */)
 {
-  qApp->processEvents();
-  this->repaint();
-  this->show();
+  update();
 }
 
 const QPixmap& ribi::dws::QtDwsWidget::GetPixmap(const Tile& tile) const noexcept
@@ -63,60 +58,23 @@ const QPixmap& ribi::dws::QtDwsWidget::GetPixmap(const Tile& tile) const noexcep
   return m_empty;
 }
 
-
-void ribi::dws::QtDwsWidget::keyPressEvent(QKeyEvent * e) noexcept
+void ribi::dws::QtDwsWidget::keyPressEvent(QKeyEvent * e)
 {
   switch (e->key())
   {
-    case Qt::Key_Right:  m_keys.push_back(Key::right); break;
-    case Qt::Key_Down:   m_keys.push_back(Key::down); break;
-    case Qt::Key_Left:   m_keys.push_back(Key::left); break;
-    case Qt::Key_Escape: m_keys.push_back(Key::quit);
-      this->close();
-      return;
-    default: return;
+    case Qt::Key_Right:  Press(Key::right); return;
+    case Qt::Key_Down:   Press(Key::down); return;
+    case Qt::Key_Left:   Press(Key::left); return;
+    case Qt::Key_Escape: Press(Key::quit); return;
+    default: break;
   }
+  //When the game is over, any key returns to the menu
+  if (m_game.IsGameOver()) close();
 }
 
-void ribi::dws::QtDwsWidget::OnChanged(const Widget& widget)
+void ribi::dws::QtDwsWidget::OnChanged(const Widget& /* widget */)
 {
-  const std::vector<std::vector<Tile> > & v = widget.GetTiles();
-  assert(!v.empty());
-  const int rows = static_cast<int>(v.size()   );
-  const int cols = static_cast<int>(v[0].size());
-  if (width() != cols * m_beer.width() || height() != rows * m_beer.height())
-  {
-    const int width {cols * m_beer.width() };
-    const int height{rows * m_beer.height()};
-    this->setGeometry(0,0,width,height);
-    m_image = QtGraphics().CreateImage(width,height,0);
-  }
-  const int block_width  = static_cast<double>(width() ) / static_cast<double>(cols);
-  const int block_height = static_cast<double>(height()) / static_cast<double>(rows);
-  for (int y=0; y!=rows; ++y)
-  {
-    assert(y < static_cast<int>(v.size()));
-    const std::vector<Tile>& line = v[y];
-    assert(cols == static_cast<int>(line.size()));
-    const int y1 = static_cast<int>(block_height * static_cast<double>(y  ));
-    for (int x=0; x!=cols; ++x)
-    {
-      assert(x < static_cast<int>(line.size()));
-      const QPixmap& pixmap = GetPixmap(line[x]);
-      const int x1 = static_cast<int>(block_width * static_cast<double>(x  ));
-      QtGraphics().DrawImage(m_image,pixmap.toImage(),x1,y1);
-    }
-  }
-  //Draw cursor
-  {
-    const Cursor cursor = widget.GetCursor();
-    const int x = cursor.x * block_width;
-    const int y = cursor.y * block_height;
-    const QPixmap& pixmap = GetPixmap(cursor.tile);
-    QtGraphics().DrawImage(m_image,pixmap.toImage(),x,y);
-  }
-
-  this->repaint();
+  update();
 }
 
 void ribi::dws::QtDwsWidget::OnJoystickCheck()
@@ -129,13 +87,13 @@ void ribi::dws::QtDwsWidget::OnJoystickCheck()
     if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::X))
     {
       const double dx{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::X)};
-      if (dx < -50.0) { m_keys.push_back(Key::left); }
-      if (dx >  50.0) { m_keys.push_back(Key::right); }
+      if (dx < -50.0) { Press(Key::left); }
+      if (dx >  50.0) { Press(Key::right); }
     }
     if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::Y))
     {
       const double dy{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::Y)};
-      if (dy > 50.0) { m_keys.push_back(Key::down); }
+      if (dy > 50.0) { Press(Key::down); }
     }
     if (sf::Joystick::isButtonPressed(joystick_index,0)) {
       close();
@@ -144,21 +102,67 @@ void ribi::dws::QtDwsWidget::OnJoystickCheck()
   #endif // USE_SFML_FOR_JOYSTICK_SUPPORT
 }
 
-void ribi::dws::QtDwsWidget::paintEvent(QPaintEvent *) noexcept
+void ribi::dws::QtDwsWidget::paintEvent(QPaintEvent *)
 {
   QPainter painter(this);
-  painter.drawImage(0,0,m_image);
+  painter.fillRect(rect(),Qt::black);
+  painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+  //Fit the board in the window, as the WebAssembly version
+  //has as much room as the web page gives it
+  const std::vector<std::vector<Tile>>& v = m_game.GetTiles();
+  const int rows = static_cast<int>(v.size());
+  const int cols = static_cast<int>(v[0].size());
+  const int tile_size = m_beer.width();
+  const double scale = std::min(
+    static_cast<double>(width()) / (cols * tile_size),
+    static_cast<double>(height()) / (rows * tile_size)
+  );
+  painter.translate(
+    (width() - (cols * tile_size * scale)) / 2.0,
+    (height() - (rows * tile_size * scale)) / 2.0
+  );
+  painter.scale(scale,scale);
+
+  for (int y=0; y!=rows; ++y)
+  {
+    for (int x=0; x!=cols; ++x)
+    {
+      painter.drawPixmap(x * tile_size, y * tile_size, GetPixmap(v[y][x]));
+    }
+  }
+
+  const QRect board(0, 0, cols * tile_size, rows * tile_size);
+  if (m_game.IsGameOver())
+  {
+    painter.fillRect(board,QColor(0,0,0,160));
+    QFont font = painter.font();
+    font.setPixelSize(tile_size);
+    font.setBold(true);
+    painter.setFont(font);
+    painter.setPen(Qt::yellow);
+    painter.drawText(board,Qt::AlignCenter,"Game over");
+    return;
+  }
+  const Cursor& cursor = m_game.GetCursor();
+  painter.drawPixmap(cursor.x * tile_size, cursor.y * tile_size, GetPixmap(cursor.tile));
 }
 
-
-ribi::dws::Key ribi::dws::QtDwsWidget::RequestKey()
+void ribi::dws::QtDwsWidget::Press(const Key key)
 {
-  while (1)
+  if (key == Key::quit || m_game.IsGameOver())
   {
-    qApp->processEvents();
-    if (m_keys.empty()) continue;
-    const auto key = m_keys.back();
-    m_keys.clear();
-    return key;
+    close();
+    return;
   }
+  m_game.PressKey(key);
+}
+
+QSize ribi::dws::QtDwsWidget::sizeHint() const
+{
+  const std::vector<std::vector<Tile>>& v = m_game.GetTiles();
+  return QSize(
+    static_cast<int>(v[0].size()) * m_beer.width(),
+    static_cast<int>(v.size()) * m_beer.height()
+  );
 }

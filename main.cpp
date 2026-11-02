@@ -1,9 +1,9 @@
-#include <iostream>
+#include <string>
+#include <vector>
 
 #include "daswahreschlagerfestmenudialog.h"
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
-  const std::vector<std::string> args { ribi::MenuDialog::ConvertArguments(argc,argv) };
-  return ribi::dws::MenuDialog().Execute(args);
+  return ribi::dws::MenuDialog().Execute(std::vector<std::string>(argv, argv + argc));
 }

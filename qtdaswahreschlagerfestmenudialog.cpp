@@ -1,10 +1,8 @@
-
-
 #include "qtdaswahreschlagerfestmenudialog.h"
 
 #include <QKeyEvent>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QMessageBox>
+#include <QScreen>
 #include <QTimer>
 
 #ifdef USE_SFML_FOR_JOYSTICK_SUPPORT
@@ -12,66 +10,95 @@
 #endif //USE_SFML_FOR_JOYSTICK_SUPPORT
 
 #include "daswahreschlagerfestmenudialog.h"
-#include "qtaboutdialog.h"
 #include "qtdaswahreschlagerfestwidget.h"
-#include "daswahreschlagerfestwidget.h"
-#include "testtimer.h"
 #include "ui_qtdaswahreschlagerfestmenudialog.h"
-#include "trace.h"
 
-
-QKeyEvent CreateDown() noexcept { return QKeyEvent(QEvent::KeyPress,Qt::Key_Down,Qt::NoModifier); }
-QKeyEvent CreateUp() noexcept { return QKeyEvent(QEvent::KeyPress,Qt::Key_Up,Qt::NoModifier); }
-QKeyEvent CreateTab() noexcept { return QKeyEvent(QEvent::KeyPress,Qt::Key_Tab,Qt::NoModifier); }
-QKeyEvent CreateEnter() noexcept { return QKeyEvent(QEvent::KeyPress,Qt::Key_Enter,Qt::NoModifier); }
-
-ribi::dws::QtMenuDialog::QtMenuDialog(QWidget *parent) noexcept
-  : QtHideAndShowDialog(parent),
+ribi::dws::QtMenuDialog::QtMenuDialog(QWidget *parent)
+  : QDialog(parent),
     ui(new Ui::QtDwsMenuDialog),
     m_timer_joystick{new QTimer(this)}
 {
   ui->setupUi(this);
 
+  #ifdef Q_OS_WASM
+  //A web page cannot be quit
+  ui->button_quit->hide();
+  #endif // Q_OS_WASM
+
+  #ifdef USE_SFML_FOR_JOYSTICK_SUPPORT
   //Timer for checking the joystick input
-  {
-    QObject::connect(m_timer_joystick,SIGNAL(timeout()),this,SLOT(OnJoystickCheck()));
-    m_timer_joystick->setInterval(100);
-    m_timer_joystick->start();
-  }
+  QObject::connect(m_timer_joystick,SIGNAL(timeout()),this,SLOT(OnJoystickCheck()));
+  m_timer_joystick->setInterval(100);
+  m_timer_joystick->start();
+  #endif // USE_SFML_FOR_JOYSTICK_SUPPORT
+
   ui->button_start->setFocus();
 }
 
-ribi::dws::QtMenuDialog::~QtMenuDialog() noexcept
+ribi::dws::QtMenuDialog::~QtMenuDialog()
 {
   delete ui;
 }
 
 void ribi::dws::QtMenuDialog::keyPressEvent(QKeyEvent * e)
 {
-  if (e->key() == Qt::Key_Escape) { close(); }
-  QtHideAndShowDialog::keyPressEvent(e);
-}
-
-void ribi::dws::QtMenuDialog::on_button_start_clicked() noexcept
-{
-  QtDwsWidget d;
-  Widget w(&d);
-  d.OnChanged(w);
+  if (e->key() == Qt::Key_Escape)
   {
-    QRect screen = QApplication::desktop()->screenGeometry();
-    d.move( screen.center() - d.rect().center() );
+    #ifndef Q_OS_WASM
+    close();
+    #endif // Q_OS_WASM
+    return;
   }
-  d.setWindowTitle("Das Wahre Schlagerfest");
-  d.show();
-  w.Execute();
+  QDialog::keyPressEvent(e);
 }
 
-void ribi::dws::QtMenuDialog::on_button_about_clicked() noexcept
+void ribi::dws::QtMenuDialog::on_button_start_clicked()
 {
-  QtAboutDialog d(MenuDialog().GetAbout());
-  d.setWindowIcon(windowIcon());
-  d.setStyleSheet(styleSheet());
-  ShowChild(&d);
+  //Not modal and without exec(), as that blocks the WebAssembly version
+  QtDwsWidget * const d = new QtDwsWidget;
+  d->setAttribute(Qt::WA_DeleteOnClose);
+  QObject::connect(d,&QtDwsWidget::closed,this,[this]()
+    {
+      ShowMenu();
+      ui->button_start->setFocus();
+    }
+  );
+  hide();
+  #ifdef Q_OS_WASM
+  d->showFullScreen();
+  #else
+  d->resize(d->sizeHint());
+  d->move(screen()->availableGeometry().center() - d->rect().center());
+  d->show();
+  #endif // Q_OS_WASM
+  d->setFocus();
+}
+
+void ribi::dws::QtMenuDialog::ShowMenu()
+{
+  #ifdef Q_OS_WASM
+  showFullScreen();
+  #else
+  show();
+  #endif // Q_OS_WASM
+}
+
+void ribi::dws::QtMenuDialog::on_button_about_clicked()
+{
+  //open instead of exec, as exec blocks the WebAssembly version
+  QMessageBox * const d = new QMessageBox(this);
+  d->setAttribute(Qt::WA_DeleteOnClose);
+  d->setWindowTitle("About");
+  d->setText(QString::fromStdString(MenuDialog().GetAbout()));
+  //Do not inherit the large font of the menu buttons
+  d->setStyleSheet(
+    "QLabel { color: black; }"
+    "QPushButton, QPushButton:focus {"
+    "  font: 16px; color: black; background-color: white;"
+    "  border: 1px solid black; padding: 4px 16px;"
+    "}"
+  );
+  d->open();
 }
 
 void ribi::dws::QtMenuDialog::OnJoystickCheck()
@@ -92,16 +119,14 @@ void ribi::dws::QtMenuDialog::OnJoystickCheck()
       }
     }
     if (sf::Joystick::isButtonPressed(joystick_index,0)) {
-      auto key = CreateEnter();
+      QKeyEvent key(QEvent::KeyPress,Qt::Key_Enter,Qt::NoModifier);
       keyPressEvent(&key);
     }
   }
   #endif // USE_SFML_FOR_JOYSTICK_SUPPORT
 }
 
-
-void ribi::dws::QtMenuDialog::on_button_quit_clicked() noexcept
+void ribi::dws::QtMenuDialog::on_button_quit_clicked()
 {
   close();
 }
-

@@ -1,5 +1,6 @@
 # About
 
-Das Wahre Schlagerfest is programmed in C++14 using the STL, [Boost](http://www.boost.org) and [Qt](http://www.qt.io) libraries.
+Das Wahre Schlagerfest is programmed in C++17 using the STL and [Qt 6](http://www.qt.io) libraries.
 
-Das Wahre Schlagerfest is cross-compiled using [MXE](http://mxe.cc) in the bash shell scripts.
+There is a desktop version and a WebAssembly version,
+see the `Build` workflow in `.github/workflows/build.yaml` for how to build these.

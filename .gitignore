@@ -35,3 +35,6 @@ release/
 debug/
 ui_*
 build/
+
+# The WebAssembly version, built by the Build workflow
+docs/game/

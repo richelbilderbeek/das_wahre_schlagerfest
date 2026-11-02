@@ -23,36 +23,42 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include <boost/shared_ptr.hpp>
-#include <QImage>
+#include <QPixmap>
 #include <QWidget>
 #include "daswahreschlagerfestdisplay.h"
-#include "daswahreschlagerfestkey.h"
 #include "daswahreschlagerfesttile.h"
+#include "daswahreschlagerfestwidget.h"
 
-
-namespace Ui { class QtDwsWidget; }
+class QTimer;
 
 namespace ribi {
 namespace dws {
 
-struct Widget;
-
+///The game on screen. Responds to events, instead of waiting for keys
+///in a loop, as a loop would block the web browser in the WebAssembly version
 class QtDwsWidget : public QWidget, public ribi::dws::Display
 {
   Q_OBJECT
-    
+
 public:
-  explicit QtDwsWidget(QWidget *parent = 0) noexcept;
-  ~QtDwsWidget() noexcept;
+  explicit QtDwsWidget(QWidget *parent = nullptr);
+  QtDwsWidget(const QtDwsWidget&) = delete;
+  QtDwsWidget& operator=(const QtDwsWidget&) = delete;
 
   void DoDisplay(const Widget& widget) override;
   void OnChanged(const Widget& widget) override;
-  ribi::dws::Key RequestKey() override;
+
+  ///The size at which the tiles are shown at their original size
+  QSize sizeHint() const override;
+
+signals:
+  ///The window is closing: the game has ended or the user quit
+  void closed();
 
 protected:
-  void keyPressEvent(QKeyEvent *) noexcept;
-  void paintEvent(QPaintEvent *) noexcept;
+  void closeEvent(QCloseEvent *) override;
+  void keyPressEvent(QKeyEvent *) override;
+  void paintEvent(QPaintEvent *) override;
 
 private slots:
   void OnJoystickCheck();
@@ -62,14 +68,16 @@ private:
   const QPixmap m_bratwurst;
   const QPixmap m_empty;
 
-  //Will be painted
-  QImage m_image;
-  std::vector<Key> m_keys;
+  ///The game logic
+  Widget m_game;
 
   QTimer * const m_timer_joystick;
 
   ///Obtain the pixmap for this tile
   const QPixmap& GetPixmap(const Tile& tile) const noexcept;
+
+  ///Respond to a key, either from a keyboard or a joystick
+  void Press(const Key key);
 };
 
 } //~namespace dws
