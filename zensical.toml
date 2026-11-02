@@ -14,8 +14,8 @@ nav = [
 variant = "classic"
 palette.primary = "orange"
 
-favicon = "images/r_written.svg"
-logo = "images/r_written.svg"
+favicon = "DasWahreSchlagerfestBeer.png"
+logo = "DasWahreSchlagerfestBeer.png"
 
 # https://zensical.org/docs/setup/language/
 language = "en"
