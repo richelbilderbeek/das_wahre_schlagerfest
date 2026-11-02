@@ -58,7 +58,7 @@ void ribi::dws::Widget::CheckThree()
         {
           w[y][x] = true; w[y+1][x+1] = true; w[y+2][x+2] = true; has_three = true;
         }
-        if (x < width -2 && y > 2 && m_v[y][x] == m_v[y-1][x+1] && m_v[y-1][x+1] == m_v[y-2][x+2])
+        if (x < width -2 && y >= 2 && m_v[y][x] == m_v[y-1][x+1] && m_v[y-1][x+1] == m_v[y-2][x+2])
         {
           w[y][x] = true; w[y-1][x+1] = true; w[y-2][x+2] = true; has_three = true;
         }
@@ -204,3 +204,9 @@ void ribi::dws::Widget::SetDisplay(Display * const display)
   m_display->DoDisplay(*this);
 }
 
+void ribi::dws::Widget::SetTiles(const std::vector<std::vector<Tile>>& tiles)
+{
+  assert(tiles.size() == m_v.size());
+  assert(tiles[0].size() == m_v[0].size());
+  m_v = tiles;
+}

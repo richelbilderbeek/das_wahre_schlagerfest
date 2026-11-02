@@ -54,3 +54,28 @@ BOOST_AUTO_TEST_CASE(dws_widget_ignores_keys_after_game_over)
   w.PressKey(Key::right);
   BOOST_CHECK_EQUAL(w.GetCursor().x, x);
 }
+
+BOOST_AUTO_TEST_CASE(dws_widget_removes_rising_diagonal_from_third_row)
+{
+  //The first tile is a beer, that lands at the top of the middle column.
+  //This completes the diagonal starting at the left of the bottom row
+  const Tile e = Tile::empty;
+  const Tile b = Tile::beer;
+  const Tile w = Tile::bratwurst;
+  TestDisplay display;
+  Widget widget(&display, 5, 3);
+  widget.SetTiles(
+    {
+      {e, e, e, e, e},
+      {e, b, w, e, e},
+      {b, w, w, e, e}
+    }
+  );
+  widget.PressKey(Key::down);
+  const std::vector<std::vector<Tile>> expected{
+    {e, e, e, e, e},
+    {e, e, w, e, e},
+    {e, w, w, e, e}
+  };
+  BOOST_CHECK(widget.GetTiles() == expected);
+}
