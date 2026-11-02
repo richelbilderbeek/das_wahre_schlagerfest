@@ -5,7 +5,8 @@ repo_url = "https://github.com/richelbilderbeek/das_wahre_schlagerfest"
 edit_uri = "blob/main/docs/"
 
 nav = [
-  { "Start" = "README.md"}
+  { "Start" = "README.md"},
+  "screenshots/README.md"
 ]
 
 [project.theme]

@@ -1,18 +1,9 @@
 # Das Wahre Schlagerfest
 
-Branch|[![Travis CI logo](TravisCI.png)](https://travis-ci.org)|[![Codecov logo](Codecov.png)](https://www.codecov.io)
----|---|---
-master|[![Build Status](https://travis-ci.org/richelbilderbeek/DasWahreSchlagerfest.svg?branch=master)](https://travis-ci.org/richelbilderbeek/DasWahreSchlagerfest)|[![codecov.io](https://codecov.io/github/richelbilderbeek/DasWahreSchlagerfest/coverage.svg?branch=master)](https://codecov.io/github/richelbilderbeek/DasWahreSchlagerfest/branch/master)
-develop|[![Build Status](https://travis-ci.org/richelbilderbeek/DasWahreSchlagerfest.svg?branch=develop)](https://travis-ci.org/richelbilderbeek/DasWahreSchlagerfest)|[![codecov.io](https://codecov.io/github/richelbilderbeek/DasWahreSchlagerfest/coverage.svg?branch=develop)](https://codecov.io/github/richelbilderbeek/DasWahreSchlagerfest/branch/develop)
-
 Das Wahre Schlagerfest is a Truly Fun Game with an Oktoberfest theme,
 programmed in C++ using Qt (see 'About the program' for more details).
 
 ![Das Wahre Schlagerfest v4.0](screenshots/DasWahreSchlagerfest_4_0.png)
-
-# Downloads
-
- * [Download the Windows executable](http://richelbilderbeek.nl/GameDasWahreSchlagerfestExe.zip)
 
 # About the program
 
@@ -29,26 +20,7 @@ You can collaborate by
  * add a GitHub issue: this can be a question, suggestion, or whatever
  * fork this repository, make the changes, and submit a pull request. 
 
-# Screenshot archive
-
-The most recent screenshots are at the top.
-
-![Das Wahre Schlagerfest menu v4.1](screenshots/DasWahreSchlagerfest_4_1_menu.png)
-![Das Wahre Schlagerfest menu v4.0](screenshots/DasWahreSchlagerfest_4_0_menu.png)
-![Das Wahre Schlagerfest v4.0](screenshots/DasWahreSchlagerfest_4_0.png)
-![Das Wahre Schlagerfest in terminal v4.0](screenshots/DasWahreSchlagerfest_4_0_terminal.png)
-
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_2_5.png)
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_2_5_terminal.png)
-
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_2_2_menu.png)
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_2_2.png)
-
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_2_1.png)
-
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_2_0.png)
-
-![Das Wahre Schlagerfest v.](screenshots/DasWahreSchlagerfest_1_0.png)
+- [Screenshots](screenshots/README.md)
 
 ## External links
 
