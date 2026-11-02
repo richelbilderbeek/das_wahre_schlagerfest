@@ -60,6 +60,8 @@ jobs:
         run: |
           aqt install-qt linux desktop "$QT_VERSION" linux_gcc_64 --outputdir "$HOME/Qt"
           aqt install-qt all_os wasm "$QT_VERSION" wasm_singlethread --outputdir "$HOME/Qt"
+          # The cross-platform package does not keep the executable bits
+          chmod +x "$HOME/Qt/$QT_VERSION/wasm_singlethread/bin/"*
 
       - name: Install Emscripten
         run: |
