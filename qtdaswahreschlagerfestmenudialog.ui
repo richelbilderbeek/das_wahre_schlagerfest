@@ -13,7 +13,6 @@
   <property name="font">
    <font>
     <pointsize>28</pointsize>
-    <weight>50</weight>
     <italic>false</italic>
     <bold>false</bold>
    </font>
@@ -22,8 +21,8 @@
    <string>Das Wahre Schlagerfest</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/images/R.png</normaloff>:/images/R.png</iconset>
+   <iconset resource="DasWahreSchlagerfest.qrc">
+    <normaloff>:/images/DasWahreSchlagerfestBeer.png</normaloff>:/images/DasWahreSchlagerfestBeer.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
@@ -91,7 +90,6 @@ QPushButton#button_quit{
      <property name="font">
       <font>
        <pointsize>36</pointsize>
-       <weight>75</weight>
        <italic>false</italic>
        <bold>true</bold>
       </font>
@@ -112,7 +110,6 @@ QPushButton#button_quit{
      <property name="font">
       <font>
        <pointsize>36</pointsize>
-       <weight>75</weight>
        <italic>false</italic>
        <bold>true</bold>
       </font>
@@ -149,7 +146,6 @@ QPushButton#button_quit{
      <property name="font">
       <font>
        <pointsize>36</pointsize>
-       <weight>75</weight>
        <italic>false</italic>
        <bold>true</bold>
       </font>

@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <numeric>
 
 #include "daswahreschlagerfestdisplay.h"
@@ -16,10 +17,16 @@ ribi::dws::Widget::Widget(
 )
   : m_cursor{Cursor(width / 2,0,Tile::beer)},
     m_display(display),
+    m_is_game_over{false},
     m_v(height,std::vector<Tile>(width,Tile::empty))
 {
   assert(height == static_cast<int>(m_v.size()));
   assert(width == static_cast<int>(m_v[0].size()));
+}
+
+bool ribi::dws::Widget::CanPlaceCursor(const int x) const
+{
+  return m_v[1][x] == Tile::empty;
 }
 
 void ribi::dws::Widget::CheckThree()
@@ -108,20 +115,9 @@ void ribi::dws::Widget::DoDisplay() const
   m_display->DoDisplay(*this);
 }
 
-void ribi::dws::Widget::Execute()
-{
-
-  while (1)
-  {
-    DoDisplay();
-    ribi::dws::Key key = m_display->RequestKey();
-    PressKey(key);
-    if (key == ribi::dws::Key::quit) break;
-  }
-}
-
 void ribi::dws::Widget::PressKey(const ribi::dws::Key key)
 {
+  if (m_is_game_over) return;
   switch (key)
   {
     case Key::right:
@@ -155,7 +151,18 @@ void ribi::dws::Widget::PressKey(const ribi::dws::Key key)
         //Place cursor
         m_cursor.x = static_cast<int>(m_v[0].size()) / 2;
         m_cursor.y = 0;
-        while (m_v[m_cursor.y+1][m_cursor.x] != Tile::empty)
+        bool has_room = false;
+        for (int x = 0; x != static_cast<int>(m_v[0].size()); ++x)
+        {
+          if (CanPlaceCursor(x)) has_room = true;
+        }
+        if (!has_room)
+        {
+          m_is_game_over = true;
+          m_display->OnChanged(*this);
+          return;
+        }
+        while (!CanPlaceCursor(m_cursor.x))
         {
           //Look for another spot
           m_cursor.x = std::rand() % static_cast<int>(m_v[0].size());

@@ -1,20 +1,26 @@
 #ifndef DASWAHRESCHLAGERFESTMENUDIALOG_H
 #define DASWAHRESCHLAGERFESTMENUDIALOG_H
 
-#include "menudialog.h"
+#include <string>
+#include <vector>
 
 namespace ribi {
 namespace dws {
 
-struct MenuDialog final : public ::ribi::MenuDialog
+///The command-line interface, and the information about this program
+struct MenuDialog
 {
-  About GetAbout() const noexcept override;
-  Help GetHelp() const noexcept override;
-  std::string GetVersion() const noexcept override;
-  std::vector<std::string> GetVersionHistory() const noexcept override;
+  ///Run the command-line interface, returns the exit code
+  int Execute(const std::vector<std::string>& args) const;
 
-  private:
-  int ExecuteSpecific(const std::vector<std::string>& argv) noexcept override;
+  ///The text shown in the 'About' screen
+  std::string GetAbout() const;
+
+  ///The text shown as command-line help
+  std::string GetHelp() const;
+
+  std::string GetVersion() const;
+  std::vector<std::string> GetVersionHistory() const;
 };
 
 } //~namespace dws

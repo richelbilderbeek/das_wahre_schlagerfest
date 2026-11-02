@@ -1,8 +1,9 @@
 #include "daswahreschlagerfestterminal.h"
 
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
-#include "textcanvas.h"
+#include <string>
 #include "daswahreschlagerfestwidget.h"
 
 ribi::dws::Terminal::Terminal()
@@ -19,20 +20,32 @@ void ribi::dws::Terminal::DoDisplay(const Widget& widget)
   const int n_cols = static_cast<int>(widget.GetTiles()[0].size());
   assert(n_cols > 0);
 
-  TextCanvas canvas(n_cols,n_rows);
-
   for (int row=0; row!=n_rows; ++row)
   {
+    std::string line(n_cols,' ');
     for (int col=0; col!=n_cols; ++col)
     {
       Tile tile = widget.GetTiles()[row][col];
       const auto cursor = widget.GetCursor();
       if (col == cursor.x && row == cursor.y) { tile = cursor.tile; }
-      const char c = ToChar(tile);
-      canvas.PutChar(col,row,c);
+      line[col] = ToChar(tile);
     }
+    std::cout << line << '\n';
   }
-  std::cout << canvas << std::endl;
+  std::cout << std::endl;
+}
+
+void ribi::dws::Terminal::Execute(Widget& widget)
+{
+  while (!widget.IsGameOver())
+  {
+    widget.DoDisplay();
+    const ribi::dws::Key key = RequestKey();
+    if (key == ribi::dws::Key::quit) return;
+    widget.PressKey(key);
+  }
+  widget.DoDisplay();
+  std::cout << "Game over" << std::endl;
 }
 
 void ribi::dws::Terminal::OnChanged(const Widget& /* widget */)
@@ -60,11 +73,8 @@ ribi::dws::Key ribi::dws::Terminal::RequestKey()
       char c = '\0';
       std::cin >> c;
 
-      if (!std::cin)
-      {
-        std::cout << "Please type 'a', 's', 'd' or 'q'" << std::endl;
-        continue;
-      }
+      //End of input
+      if (!std::cin) return ribi::dws::Key::quit;
 
       switch(c)
       {

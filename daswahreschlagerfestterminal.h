@@ -2,6 +2,7 @@
 #define DASWAHRESCHLAGERFESTTERMINAL_H
 
 #include "daswahreschlagerfestdisplay.h"
+#include "daswahreschlagerfestkey.h"
 
 namespace ribi {
 namespace dws {
@@ -11,7 +12,11 @@ struct Terminal : public Display
   Terminal();
   void DoDisplay(const Widget& widget) override;
   void OnChanged(const Widget& widget) override;
-  ribi::dws::Key RequestKey() override;
+
+  ///Play the game until the user quits or the game is over
+  void Execute(Widget& widget);
+
+  ribi::dws::Key RequestKey();
   void SetAutoPlay(const bool auto_play) noexcept { m_auto_play = auto_play; }
   private:
 

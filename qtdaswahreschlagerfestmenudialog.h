@@ -23,7 +23,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include "qthideandshowdialog.h"
+#include <QDialog>
+
+class QTimer;
 
 
 namespace Ui {
@@ -33,23 +35,26 @@ namespace Ui {
 namespace ribi {
 namespace dws {
 
-class QtMenuDialog : public QtHideAndShowDialog
+class QtMenuDialog : public QDialog
 {
   Q_OBJECT
     
 public:
-  explicit QtMenuDialog(QWidget *parent = 0) noexcept;
+  explicit QtMenuDialog(QWidget *parent = nullptr);
   QtMenuDialog(const QtMenuDialog&) = delete;
   QtMenuDialog& operator=(const QtMenuDialog&) = delete;
-  ~QtMenuDialog() noexcept;
+  ~QtMenuDialog();
+
+  ///Show the menu, in the way that suits the platform
+  void ShowMenu();
     
 private slots:
-  void on_button_start_clicked() noexcept;
-  void on_button_about_clicked() noexcept;
-  void on_button_quit_clicked() noexcept;
+  void on_button_start_clicked();
+  void on_button_about_clicked();
+  void on_button_quit_clicked();
 
 protected:
-  void keyPressEvent(QKeyEvent *);
+  void keyPressEvent(QKeyEvent *) override;
 
 private slots:
   void OnJoystickCheck();
