@@ -41,6 +41,9 @@ struct Widget
 
   void SetDisplay(Display * const display);
 
+  ///Set the Y-X ordered tiles, which must keep the size of the board
+  void SetTiles(const std::vector<std::vector<Tile>>& tiles);
+
   private:
   ///The cursor
   Cursor m_cursor;
