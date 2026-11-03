@@ -85,15 +85,15 @@ void ribi::dws::QtDwsWidget::OnJoystickCheck()
   const int joystick_index{0};
   if (sf::Joystick::isConnected(joystick_index))
   {
-    if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::X))
+    if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::Axis::X))
     {
-      const double dx{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::X)};
+      const double dx{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::Axis::X)};
       if (dx < -50.0) { Press(Key::left); }
       if (dx >  50.0) { Press(Key::right); }
     }
-    if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::Y))
+    if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::Axis::Y))
     {
-      const double dy{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::Y)};
+      const double dy{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::Axis::Y)};
       if (dy > 50.0) { Press(Key::down); }
     }
     if (sf::Joystick::isButtonPressed(joystick_index,0)) {

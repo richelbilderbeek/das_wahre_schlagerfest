@@ -106,9 +106,9 @@ void ribi::dws::QtMenuDialog::OnJoystickCheck()
   const int joystick_index{0};
   if (sf::Joystick::isConnected(joystick_index))
   {
-    if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::Y))
+    if (sf::Joystick::hasAxis(joystick_index, sf::Joystick::Axis::Y))
     {
-      const double dy{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::Y)};
+      const double dy{sf::Joystick::getAxisPosition(joystick_index, sf::Joystick::Axis::Y)};
       if (dy > 50.0) {
         this->focusNextChild();
       }
