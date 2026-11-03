@@ -36,10 +36,16 @@ target_link_libraries(das_wahre_schlagerfest PRIVATE das_wahre_schlagerfest_core
 
 if(NOT EMSCRIPTEN)
   # Joystick support is optional and desktop-only
-  find_package(SFML 2 COMPONENTS window QUIET)
+  find_package(SFML 3 COMPONENTS Window QUIET)
+  if(SFML_FOUND)
+    set(SFML_WINDOW_TARGET SFML::Window)
+  else()
+    find_package(SFML 2 COMPONENTS window QUIET)
+    set(SFML_WINDOW_TARGET sfml-window)
+  endif()
   if(SFML_FOUND)
     target_compile_definitions(das_wahre_schlagerfest PRIVATE USE_SFML_FOR_JOYSTICK_SUPPORT)
-    target_link_libraries(das_wahre_schlagerfest PRIVATE sfml-window)
+    target_link_libraries(das_wahre_schlagerfest PRIVATE ${SFML_WINDOW_TARGET})
   endif()
 
   add_executable(das_wahre_schlagerfest_console main.cpp)
