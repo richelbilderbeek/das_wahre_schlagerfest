@@ -33,6 +33,13 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure
 
+      - name: Build the Qt Creator project
+        run: |
+          mkdir build_qmake
+          cd build_qmake
+          /usr/lib/qt6/bin/qmake ../das_wahre_schlagerfest.pro
+          make --silent --jobs
+
       - uses: actions/upload-artifact@v4
         with:
           name: das_wahre_schlagerfest_desktop

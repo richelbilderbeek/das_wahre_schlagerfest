@@ -27,6 +27,7 @@
 *.out
 *.app
 *.pro.user
+.qmake.stash
 Makefile
 Makefile.*
 *_plugin_import.cpp
